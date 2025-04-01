@@ -1,3 +1,4 @@
+import 'package:chat_app/widgets/boton_azul.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chat_app/widgets/labels.dart';
@@ -65,12 +66,14 @@ class __FormState extends State<_Form> {
             textController: passCtrl,
             isPassword: true,
           ),
-          
-          ElevatedButton(onPressed: () {
-            print(emailCtrl.text);
-            print(passCtrl.text);
-          }, 
-          child: Text("Login")),
+          // Button
+          BotonAzul(
+            onPressed: () {
+              print(emailCtrl.text);
+              print(passCtrl.text);
+            },
+            text: "Ingresar",
+          )
         ],
       ),
     );
