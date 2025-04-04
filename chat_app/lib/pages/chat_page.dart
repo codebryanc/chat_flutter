@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:chat_app/pages/chat_message.dart';
+
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
 
@@ -13,6 +15,16 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  bool _isWriting = false;
+  List<ChatMessage> _messages = [
+    ChatMessage(text: 'Hola mundo', uid: '123'),
+    ChatMessage(text: 'Hola mundo asjdlñkjsadlkñajjñflkjadsñlfkjadsñlfjñlk djsafñljadslñfjdslñjfdañslj', uid: '123'),
+    ChatMessage(text: 'Hola mundo', uid: '123'),
+    ChatMessage(text: 'Hola mundo', uid: '123s'),
+    ChatMessage(text: 'Hola mundo', uid: '123s'),
+    ChatMessage(text: 'Hola mundo', uid: '123s'),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +49,8 @@ class _ChatPageState extends State<ChatPage> {
             Flexible(
               child: ListView.builder(
                 physics: BouncingScrollPhysics(),
-                itemBuilder: (_, i) => Text('$i'),
+                itemCount: _messages.length,
+                itemBuilder: (_, i) => _messages[i],
                 reverse: true,
               ),
             ),
@@ -66,8 +79,14 @@ class _ChatPageState extends State<ChatPage> {
               child: TextField(
                 controller: _textController,
                 onSubmitted: _handleSummit,
-                onChanged: (_) {
-                  // TODO:Cuando hay un valor para poder postear
+                onChanged: (textValue) {
+                  setState(() {
+                    if (textValue.isNotEmpty) {
+                      _isWriting = true;
+                    } else {
+                      _isWriting = false;
+                    }
+                  });
                 },
                 decoration: InputDecoration.collapsed(
                   hintText: 'Enviar mensaje',
@@ -80,16 +99,29 @@ class _ChatPageState extends State<ChatPage> {
             // send button
             Container(
               margin: EdgeInsets.symmetric(horizontal: 4.0),
-              child: !Platform.isIOS
+              child: Platform.isIOS
                 ? CupertinoButton(
-                  child: Text('Enviar', style: TextStyle(color: Colors.blueAccent[400])),
-                  onPressed: () {},
-                )
+                    onPressed:
+                     _isWriting ?
+                      () => _handleSummit(_textController.text) :
+                      null,
+                    child: Text(
+                      'Enviar',
+                      style: TextStyle(color: _isWriting ? Colors.blueAccent[400] : Colors.grey),
+                    ),
+                  )
                 : Container(
                   margin: EdgeInsets.symmetric(horizontal: 4.0),
-                  child: IconButton(
-                    icon: Icon(Icons.send), color: Colors.blueAccent[400],
-                    onPressed: () {},
+                  child: IconTheme(
+                    data: IconThemeData(color: Colors.blueAccent[400]),
+                    child: IconButton(
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      icon: Icon(Icons.send),
+                      onPressed: _isWriting ?
+                        () => _handleSummit(_textController.text) :
+                        null,
+                    ),
                   ),
                 ),
             )
@@ -100,8 +132,18 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   _handleSummit(String text) {
-    print(text);
     _textController.clear();
     _focusNode.requestFocus();
+
+    final newMessage = ChatMessage(
+      uid: '123',
+      text: text
+    );
+    _messages.insert(0, newMessage);
+    
+    setState(() {
+      _isWriting = false;
+    });
+
   }
 }
