@@ -12,17 +12,11 @@ class ChatPage extends StatefulWidget {
   State<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
   final TextEditingController _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool _isWriting = false;
   List<ChatMessage> _messages = [
-    ChatMessage(text: 'Hola mundo', uid: '123'),
-    ChatMessage(text: 'Hola mundo asjdlñkjsadlkñajjñflkjadsñlfkjadsñlfjñlk djsafñljadslñfjdslñjfdañslj', uid: '123'),
-    ChatMessage(text: 'Hola mundo', uid: '123'),
-    ChatMessage(text: 'Hola mundo', uid: '123s'),
-    ChatMessage(text: 'Hola mundo', uid: '123s'),
-    ChatMessage(text: 'Hola mundo', uid: '123s'),
   ];
 
   @override
@@ -132,18 +126,39 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   _handleSummit(String text) {
+    if (text.isEmpty) return;
+
     _textController.clear();
     _focusNode.requestFocus();
 
     final newMessage = ChatMessage(
       uid: '123',
-      text: text
+      text: text,
+      animationController: AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 400)
+      )
     );
     _messages.insert(0, newMessage);
+
+    // ahora debemos lanzar la animacion
+    newMessage.animationController.forward();
     
     setState(() {
       _isWriting = false;
     });
 
+  }
+
+  @override
+  void dispose() {
+    
+    // TODO: off del socket
+
+    for (ChatMessage message in _messages) {
+      message.animationController.dispose();
+    }
+
+    super.dispose();
   }
 }
